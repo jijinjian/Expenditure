@@ -1,0 +1,1524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<title>SpendSight</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+:root {
+  --bg-primary: #F0F4F8;
+  --bg-secondary: #FAFCFF;
+  --bg-tertiary: #EEF2F7;
+  --text-primary: #2D3748;
+  --text-secondary: #718096;
+  --text-tertiary: #A0AEC0;
+  --accent: #6C8EBF;
+  --accent-light: rgba(108,142,191,0.12);
+  --green: #81C995;
+  --red: #E8807F;
+  --orange: #F6AD55;
+  --separator: rgba(113,128,150,0.15);
+  --card-shadow: 0 1px 4px rgba(113,128,150,0.08), 0 1px 2px rgba(113,128,150,0.06);
+  --card-shadow-hover: 0 4px 12px rgba(113,128,150,0.12);
+  --tab-bg: rgba(250,252,255,0.88);
+  --input-bg: #EDF2F7;
+  --overlay: rgba(45,55,72,0.3);
+  --modal-bg: #FAFCFF;
+}
+
+[data-theme="dark"] {
+  --bg-primary: #000000;
+  --bg-secondary: #1C1C1E;
+  --bg-tertiary: #2C2C2E;
+  --text-primary: #FFFFFF;
+  --text-secondary: #8E8E93;
+  --text-tertiary: #636366;
+  --separator: rgba(84,84,88,0.36);
+  --card-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  --card-shadow-hover: 0 4px 12px rgba(0,0,0,0.4);
+  --tab-bg: rgba(28,28,30,0.85);
+  --input-bg: #2C2C2E;
+  --overlay: rgba(0,0,0,0.5);
+  --modal-bg: #2C2C2E;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', sans-serif;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  min-height: 100vh;
+  min-height: -webkit-fill-available;
+  overflow-x: hidden;
+  transition: background 0.3s, color 0.3s;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Safe area handling */
+.app-container {
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px));
+  max-width: 430px;
+  margin: 0 auto;
+}
+
+/* Header */
+.header {
+  padding: 12px 20px 8px;
+  text-align: center;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: var(--bg-primary);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+.header h1 {
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: -0.2px;
+}
+
+/* Tab Bar */
+.tab-bar {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 430px;
+  background: var(--tab-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-top: 0.5px solid var(--separator);
+  display: flex;
+  justify-content: space-around;
+  padding: 6px 0 calc(6px + env(safe-area-inset-bottom, 8px));
+  z-index: 100;
+}
+
+.tab-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 4px 16px;
+  cursor: pointer;
+  border: none;
+  background: none;
+  color: var(--text-tertiary);
+  font-size: 10px;
+  font-weight: 500;
+  transition: color 0.2s;
+  -webkit-appearance: none;
+}
+
+.tab-item.active { color: var(--accent); }
+
+.tab-item svg { width: 24px; height: 24px; }
+
+/* Page content */
+.page { display: none; padding: 0 16px 20px; animation: fadeIn 0.25s ease; }
+.page.active { display: block; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+/* Month Navigator */
+.month-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  padding: 16px 0 20px;
+}
+
+.month-nav button {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  background: var(--bg-secondary);
+  color: var(--accent);
+  font-size: 18px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--card-shadow);
+  transition: all 0.2s;
+}
+
+.month-nav button:active { transform: scale(0.92); }
+
+.month-label {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  min-width: 180px;
+  text-align: center;
+}
+
+/* Cards */
+.card {
+  background: var(--bg-secondary);
+  border-radius: 14px;
+  padding: 18px;
+  margin-bottom: 14px;
+  box-shadow: var(--card-shadow);
+  transition: box-shadow 0.2s;
+}
+
+.card-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 12px;
+}
+
+/* Input groups */
+.input-group { margin-bottom: 14px; }
+.input-group:last-child { margin-bottom: 0; }
+
+.input-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+  display: block;
+}
+
+.input-sublabel {
+  font-size: 12px;
+  color: var(--text-tertiary);
+  margin-bottom: 6px;
+  display: block;
+  font-style: italic;
+}
+
+.input-field {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--separator);
+  background: var(--input-bg);
+  color: var(--text-primary);
+  font-size: 17px;
+  font-family: inherit;
+  font-weight: 500;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  -webkit-appearance: none;
+}
+
+.input-field:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(0,122,255,0.12);
+}
+
+.input-field::placeholder { color: var(--text-tertiary); font-weight: 400; }
+
+.input-prefix {
+  position: relative;
+}
+
+.input-prefix .input-field { padding-left: 28px; }
+
+.input-prefix::before {
+  content: '$';
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-secondary);
+  font-size: 17px;
+  font-weight: 500;
+  z-index: 1;
+}
+
+select.input-field {
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M6 8L1 3h10z' fill='%238E8E93'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  padding-right: 36px;
+}
+
+textarea.input-field {
+  resize: vertical;
+  min-height: 60px;
+  font-size: 15px;
+}
+
+/* Exception rows */
+.exception-row {
+  background: var(--bg-tertiary);
+  border-radius: 10px;
+  padding: 14px;
+  margin-bottom: 10px;
+  position: relative;
+}
+
+.exception-row-header {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.exception-row-header .input-field { flex: 1; }
+
+.remove-exception {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: var(--red);
+  color: white;
+  font-size: 18px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  align-self: center;
+  transition: transform 0.15s;
+}
+
+.remove-exception:active { transform: scale(0.9); }
+
+.add-exception-btn {
+  width: 100%;
+  padding: 10px;
+  border: 2px dashed var(--separator);
+  border-radius: 10px;
+  background: none;
+  color: var(--accent);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.2s;
+}
+
+.add-exception-btn:active { background: var(--accent-light); }
+
+/* Result card */
+.result-card {
+  background: linear-gradient(135deg, #7BA0CC, #9B8EC4);
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 14px;
+  text-align: center;
+  color: white;
+}
+
+.result-label {
+  font-size: 13px;
+  font-weight: 600;
+  opacity: 0.8;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  margin-bottom: 8px;
+}
+
+.result-amount {
+  font-size: 40px;
+  font-weight: 700;
+  letter-spacing: -1.5px;
+  line-height: 1.1;
+}
+
+.result-breakdown {
+  margin-top: 12px;
+  font-size: 13px;
+  opacity: 0.75;
+  line-height: 1.5;
+  white-space: pre-line;
+}
+
+/* Buttons */
+.btn-primary {
+  width: 100%;
+  padding: 16px;
+  border-radius: 12px;
+  border: none;
+  background: var(--accent);
+  color: white;
+  font-size: 17px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.2s;
+  letter-spacing: -0.2px;
+}
+
+.btn-primary:active { transform: scale(0.98); opacity: 0.85; }
+.btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.btn-secondary {
+  width: 100%;
+  padding: 14px;
+  border-radius: 12px;
+  border: none;
+  background: var(--accent-light);
+  color: var(--accent);
+  font-size: 15px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-secondary:active { transform: scale(0.98); }
+
+/* Toast */
+.toast {
+  position: fixed;
+  top: 50px;
+  left: 50%;
+  transform: translateX(-50%) translateY(-20px);
+  background: var(--text-primary);
+  color: var(--bg-primary);
+  padding: 12px 24px;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 600;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 200;
+  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* Analysis Page */
+.analysis-controls {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.analysis-controls select.input-field {
+  flex: 1;
+  padding: 10px 14px;
+  font-size: 14px;
+}
+
+.view-toggle {
+  display: flex;
+  background: var(--input-bg);
+  border-radius: 10px;
+  padding: 3px;
+  margin-bottom: 16px;
+}
+
+.view-toggle button {
+  flex: 1;
+  padding: 8px 14px;
+  border: none;
+  border-radius: 8px;
+  background: none;
+  color: var(--text-secondary);
+  font-size: 14px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.view-toggle button.active {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+}
+
+.chart-container {
+  background: var(--bg-secondary);
+  border-radius: 14px;
+  padding: 16px;
+  margin-bottom: 14px;
+  box-shadow: var(--card-shadow);
+  position: relative;
+  height: 280px;
+}
+
+.chart-container canvas { max-height: 248px; }
+
+/* Data table */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.data-table th {
+  text-align: left;
+  padding: 10px 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid var(--separator);
+}
+
+.data-table td {
+  padding: 12px;
+  border-bottom: 1px solid var(--separator);
+  font-weight: 500;
+}
+
+.data-table tr:last-child td { border-bottom: none; }
+
+.empty-state {
+  text-align: center;
+  padding: 48px 24px;
+  color: var(--text-tertiary);
+}
+
+.empty-state svg { width: 48px; height: 48px; margin-bottom: 12px; opacity: 0.4; }
+.empty-state p { font-size: 15px; line-height: 1.5; }
+
+/* Settings */
+.setting-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 0;
+  border-bottom: 0.5px solid var(--separator);
+}
+
+.setting-row:last-child { border-bottom: none; }
+
+.setting-info h3 { font-size: 16px; font-weight: 500; }
+.setting-info p { font-size: 13px; color: var(--text-secondary); margin-top: 2px; }
+
+/* Toggle switch */
+.toggle {
+  position: relative;
+  width: 51px;
+  height: 31px;
+  flex-shrink: 0;
+}
+
+.toggle input { opacity: 0; width: 0; height: 0; }
+
+.toggle-slider {
+  position: absolute;
+  cursor: pointer;
+  inset: 0;
+  background: var(--separator);
+  border-radius: 31px;
+  transition: 0.3s;
+}
+
+.toggle-slider::before {
+  content: '';
+  position: absolute;
+  width: 27px;
+  height: 27px;
+  left: 2px;
+  bottom: 2px;
+  background: white;
+  border-radius: 50%;
+  transition: 0.3s;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+}
+
+.toggle input:checked + .toggle-slider { background: var(--green); }
+.toggle input:checked + .toggle-slider::before { transform: translateX(20px); }
+
+/* Danger zone */
+.btn-danger {
+  width: 100%;
+  padding: 14px;
+  border-radius: 12px;
+  border: none;
+  background: rgba(255,59,48,0.1);
+  color: var(--red);
+  font-size: 15px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-danger:active { transform: scale(0.98); }
+
+/* Modal */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: var(--overlay);
+  z-index: 150;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.modal-overlay.show { display: flex; }
+
+.modal {
+  background: var(--modal-bg);
+  border-radius: 16px 16px 0 0;
+  width: 100%;
+  max-width: 430px;
+  padding: 20px 20px calc(20px + env(safe-area-inset-bottom, 8px));
+  animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+
+.modal h3 { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+.modal p { font-size: 14px; color: var(--text-secondary); margin-bottom: 20px; line-height: 1.5; }
+
+.modal-actions { display: flex; gap: 10px; }
+.modal-actions button { flex: 1; }
+
+/* Summary stats row */
+.stats-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.stat-card {
+  flex: 1;
+  background: var(--bg-secondary);
+  border-radius: 12px;
+  padding: 14px;
+  text-align: center;
+  box-shadow: var(--card-shadow);
+}
+
+.stat-value {
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+}
+
+.stat-label {
+  font-size: 11px;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  margin-top: 4px;
+  font-weight: 600;
+}
+
+/* Scrollbar hide */
+::-webkit-scrollbar { width: 0; height: 0; }
+
+</style>
+</head>
+<body>
+<div class="app-container">
+  <div class="header">
+    <h1>SpendSight</h1>
+  </div>
+
+  <!-- ========== MAIN PAGE ========== -->
+  <div class="page active" id="page-main">
+    <div class="month-nav">
+      <button onclick="changeMonth(-1)" aria-label="Previous month">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <div class="month-label" id="monthLabel"></div>
+      <button onclick="changeMonth(1)" aria-label="Next month">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+    </div>
+
+    <!-- Balances -->
+    <div class="card">
+      <div class="card-title">Bank Account Balances</div>
+      <div class="input-group">
+        <label class="input-label" id="prevMonthLabel">Previous Month's Balance</label>
+        <div id="prevMonthSuggestion" class="input-sublabel" style="display:none;"></div>
+        <div class="input-prefix">
+          <input type="number" class="input-field" id="prevBalance" placeholder="0.00" step="0.01" oninput="recalculate()">
+        </div>
+      </div>
+      <div class="input-group">
+        <label class="input-label" id="currMonthLabel">This Month's Balance</label>
+        <div class="input-prefix">
+          <input type="number" class="input-field" id="currBalance" placeholder="0.00" step="0.01" oninput="recalculate()">
+        </div>
+      </div>
+    </div>
+
+    <!-- Exceptions -->
+    <div class="card">
+      <div class="card-title">Exceptions / Adjustments</div>
+      <div id="exceptionsContainer"></div>
+      <button class="add-exception-btn" onclick="addException()">+ Add Exception</button>
+    </div>
+
+    <!-- Result -->
+    <div class="result-card" id="resultCard">
+      <div class="result-label">Monthly Expenditure</div>
+      <div class="result-amount" id="resultAmount">—</div>
+      <div class="result-breakdown" id="resultBreakdown"></div>
+    </div>
+
+    <!-- Log Button -->
+    <button class="btn-primary" id="logBtn" onclick="logMonth()">
+      Log This Month
+    </button>
+  </div>
+
+  <!-- ========== ANALYSIS PAGE ========== -->
+  <div class="page" id="page-analysis">
+    <div style="padding-top: 16px;">
+      <h2 style="font-size: 28px; font-weight: 700; letter-spacing: -0.8px; margin-bottom: 16px;">Analysis</h2>
+
+      <div class="analysis-controls">
+        <select class="input-field" id="rangeFrom" onchange="renderAnalysis()"></select>
+        <span style="align-self:center; color:var(--text-tertiary); font-size:14px;">to</span>
+        <select class="input-field" id="rangeTo" onchange="renderAnalysis()"></select>
+      </div>
+
+      <div class="stats-row" id="statsRow" style="display:none;">
+        <div class="stat-card">
+          <div class="stat-value" id="statAvg">—</div>
+          <div class="stat-label">Avg / Month</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="statTotal">—</div>
+          <div class="stat-label">Total</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="statInvest">—</div>
+          <div class="stat-label">Total Invested</div>
+        </div>
+      </div>
+
+      <div class="view-toggle">
+        <button class="active" onclick="setView('chart', this)">Chart</button>
+        <button onclick="setView('table', this)">Table</button>
+      </div>
+
+      <div id="chartView">
+        <div class="chart-container">
+          <canvas id="spendChart"></canvas>
+        </div>
+      </div>
+
+      <div id="tableView" style="display:none;">
+        <div class="card" style="padding: 0; overflow: hidden;">
+          <table class="data-table" id="dataTable">
+            <thead>
+              <tr>
+                <th>Month</th>
+                <th style="text-align:right">Spent</th>
+                <th style="text-align:right">Invested</th>
+              </tr>
+            </thead>
+            <tbody id="dataTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="empty-state" id="analysisEmpty">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 3v18h18"/><path d="M7 16l4-4 4 4 6-6"/></svg>
+        <p>No data yet.<br>Log your first month to see trends.</p>
+      </div>
+
+      <div style="margin-top: 14px;" id="exportSection" class="hidden">
+        <button class="btn-secondary" onclick="exportToExcel()">
+          Export to Excel (.xlsx)
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== SETTINGS PAGE ========== -->
+  <div class="page" id="page-settings">
+    <div style="padding-top: 16px;">
+      <h2 style="font-size: 28px; font-weight: 700; letter-spacing: -0.8px; margin-bottom: 16px;">Settings</h2>
+
+      <div class="card">
+        <div class="card-title">Appearance</div>
+        <div class="setting-row">
+          <div class="setting-info">
+            <h3>Dark Mode</h3>
+            <p>Switch between light and dark themes</p>
+          </div>
+          <label class="toggle">
+            <input type="checkbox" id="darkToggle" onchange="toggleTheme()">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      </div>
+
+
+      <div class="card">
+        <div class="card-title">Monthly Income</div>
+        <div class="setting-row" style="border-bottom:none;">
+          <div class="setting-info" style="flex:1;">
+            <h3>Default Salary</h3>
+            <p>This amount is pre-filled each month. You can override it on any individual month.</p>
+          </div>
+        </div>
+        <div class="input-prefix">
+          <input type="number" class="input-field" id="settingsIncome" placeholder="0.00" step="0.01" oninput="saveIncome()">
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Bonuses</div>
+        <div class="setting-row" style="border-bottom:none;">
+          <div class="setting-info" style="flex:1;">
+            <h3>Set Bonuses by Month</h3>
+            <p>Add bonus amounts for specific months (e.g., annual bonus, 13th month pay).</p>
+          </div>
+        </div>
+        <div id="bonusListContainer"></div>
+        <button class="add-exception-btn" onclick="addBonusRow()" style="margin-top: 10px;">+ Add Bonus</button>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Data</div>
+        <div class="setting-row" style="border-bottom:none;">
+          <div class="setting-info">
+            <h3>Clear All Data</h3>
+            <p>Remove all logged months and reset the app</p>
+          </div>
+        </div>
+        <button class="btn-danger" onclick="showClearModal()">Clear All Data</button>
+      </div>
+
+      <div style="text-align: center; margin-top: 32px; color: var(--text-tertiary); font-size: 12px;">
+        SpendSight v1.0<br>Your data is stored locally on this device.
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab Bar -->
+  <nav class="tab-bar">
+    <button class="tab-item active" onclick="switchTab('main', this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      <span>Main</span>
+    </button>
+    <button class="tab-item" onclick="switchTab('analysis', this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>
+      <span>Analysis</span>
+    </button>
+    <button class="tab-item" onclick="switchTab('settings', this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+      <span>Settings</span>
+    </button>
+  </nav>
+
+  <!-- Clear Data Modal -->
+  <div class="modal-overlay" id="clearModal">
+    <div class="modal">
+      <h3>Clear All Data?</h3>
+      <p>This will permanently remove all logged months, balances, and settings. This action cannot be undone.</p>
+      <div class="modal-actions">
+        <button class="btn-secondary" onclick="hideClearModal()">Cancel</button>
+        <button class="btn-danger" onclick="clearAllData()" style="flex:1;">Clear Everything</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+</div>
+
+<script>
+// ==================== STATE ====================
+const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const SHORT_MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+let state = {
+  currentYear: 0,
+  currentMonth: 0,
+  data: {},         // key: "YYYY-MM" -> { prevBalance, currBalance, income, bonus, exceptions: [{category, amount, remarks}], expenditure }
+  currency: '$',
+  darkMode: false,
+  monthlyIncome: 0, // default income from Settings
+  bonuses: {}       // key: "YYYY-MM" -> { amount, remarks }
+};
+
+// ==================== PERSISTENCE ====================
+function saveState() {
+  localStorage.setItem('spendsight_data', JSON.stringify(state.data));
+  localStorage.setItem('spendsight_dark', state.darkMode);
+  localStorage.setItem('spendsight_income', state.monthlyIncome);
+  localStorage.setItem('spendsight_bonuses', JSON.stringify(state.bonuses));
+}
+
+function loadState() {
+  try {
+    const d = localStorage.getItem('spendsight_data');
+    if (d) state.data = JSON.parse(d);
+    const dk = localStorage.getItem('spendsight_dark');
+    if (dk === 'true') state.darkMode = true;
+    const inc = localStorage.getItem('spendsight_income');
+    if (inc) state.monthlyIncome = parseFloat(inc) || 0;
+    const bon = localStorage.getItem('spendsight_bonuses');
+    if (bon) state.bonuses = JSON.parse(bon);
+  } catch (e) {}
+}
+
+// ==================== INIT ====================
+function init() {
+  loadState();
+
+  // Default to last month
+  const now = new Date();
+  let m = now.getMonth(); // 0-indexed, this is current month
+  let y = now.getFullYear();
+  // The "main page" shows last month
+  m -= 1;
+  if (m < 0) { m = 11; y -= 1; }
+  state.currentMonth = m;
+  state.currentYear = y;
+
+  // Apply theme
+  if (state.darkMode) {
+    document.documentElement.setAttribute('data-theme', 'dark');
+    document.getElementById('darkToggle').checked = true;
+  }
+
+  // Apply currency
+  applyCurrency();
+
+  // Apply settings income
+  if (state.monthlyIncome > 0) {
+    document.getElementById('settingsIncome').value = state.monthlyIncome;
+  }
+
+  // Render bonus list
+  renderBonusList();
+
+  renderMain();
+}
+
+// ==================== MONTH NAVIGATION ====================
+function getKey(y, m) {
+  return y + '-' + String(m + 1).padStart(2, '0');
+}
+
+function changeMonth(delta) {
+  state.currentMonth += delta;
+  if (state.currentMonth > 11) { state.currentMonth = 0; state.currentYear++; }
+  if (state.currentMonth < 0) { state.currentMonth = 11; state.currentYear--; }
+  renderMain();
+}
+
+function getPrevMonthKey(y, m) {
+  let pm = m - 1, py = y;
+  if (pm < 0) { pm = 11; py--; }
+  return getKey(py, pm);
+}
+
+function getMonthName(m) { return MONTHS[m]; }
+
+// ==================== RENDER MAIN ====================
+function renderMain() {
+  const y = state.currentYear;
+  const m = state.currentMonth;
+  const key = getKey(y, m);
+  const existing = state.data[key];
+
+  document.getElementById('monthLabel').textContent = getMonthName(m) + ' ' + y;
+
+  // Label for previous month
+  let pm = m - 1, py = y;
+  if (pm < 0) { pm = 11; py--; }
+  document.getElementById('prevMonthLabel').textContent = getMonthName(pm) + ' ' + py + ' Balance';
+  document.getElementById('currMonthLabel').textContent = getMonthName(m) + ' ' + y + ' Balance';
+
+  // Fill from existing data
+  const prevBalInput = document.getElementById('prevBalance');
+  const currBalInput = document.getElementById('currBalance');
+
+  if (existing) {
+    prevBalInput.value = existing.prevBalance ?? '';
+    currBalInput.value = existing.currBalance ?? '';
+  } else {
+    prevBalInput.value = '';
+    currBalInput.value = '';
+  }
+
+  // Suggestion for previous month balance from prior month's data
+  const prevKey = getPrevMonthKey(y, m);
+  const prevData = state.data[prevKey];
+  const suggestionEl = document.getElementById('prevMonthSuggestion');
+  if (prevData && prevData.currBalance !== undefined && prevData.currBalance !== '') {
+    suggestionEl.textContent = 'Suggested: ' + formatCurrency(prevData.currBalance) + ' (from ' + getMonthName(pm) + ' entry)';
+    suggestionEl.style.display = 'block';
+    if (!existing || prevBalInput.value === '') {
+      prevBalInput.value = prevData.currBalance;
+    }
+  } else {
+    suggestionEl.style.display = 'none';
+  }
+
+  // Exceptions
+  renderExceptions(existing ? existing.exceptions : null);
+
+  recalculate();
+}
+
+// ==================== EXCEPTIONS ====================
+function renderExceptions(exceptions) {
+  const container = document.getElementById('exceptionsContainer');
+  container.innerHTML = '';
+
+  if (!exceptions || exceptions.length === 0) {
+    addExceptionRow(container, { category: 'Investments', amount: '', remarks: '' });
+  } else {
+    exceptions.forEach(ex => addExceptionRow(container, ex));
+  }
+}
+
+function addException() {
+  const container = document.getElementById('exceptionsContainer');
+  addExceptionRow(container, { category: 'Investments', amount: '', remarks: '' });
+  recalculate();
+}
+
+function addExceptionRow(container, ex) {
+  const row = document.createElement('div');
+  row.className = 'exception-row';
+
+  const remarksDisplay = ex.category === 'Others' ? 'block' : 'none';
+
+  row.innerHTML = `
+    <div class="exception-row-header">
+      <select class="input-field" onchange="onCategoryChange(this)" style="font-size:14px; padding:10px;">
+        <option value="Investments" ${ex.category === 'Investments' ? 'selected' : ''}>Investments</option>
+        <option value="Others" ${ex.category === 'Others' ? 'selected' : ''}>Others</option>
+      </select>
+      <div class="input-prefix" style="flex:1;">
+        <input type="number" class="input-field" placeholder="0.00" step="0.01" value="${ex.amount || ''}" oninput="recalculate()" style="font-size:14px; padding:10px 10px 10px 24px;">
+      </div>
+      <button class="remove-exception" onclick="removeException(this)">×</button>
+    </div>
+    <div class="remarks-box" style="display:${remarksDisplay};">
+      <textarea class="input-field" placeholder="Describe this exception..." style="font-size:13px;">${ex.remarks || ''}</textarea>
+    </div>
+  `;
+
+  container.appendChild(row);
+}
+
+function onCategoryChange(select) {
+  const row = select.closest('.exception-row');
+  const remarksBox = row.querySelector('.remarks-box');
+  remarksBox.style.display = select.value === 'Others' ? 'block' : 'none';
+}
+
+function removeException(btn) {
+  const container = document.getElementById('exceptionsContainer');
+  if (container.children.length > 1) {
+    btn.closest('.exception-row').remove();
+    recalculate();
+  } else {
+    showToast('At least one exception row is required');
+  }
+}
+
+function getExceptions() {
+  const rows = document.querySelectorAll('#exceptionsContainer .exception-row');
+  const exceptions = [];
+  rows.forEach(row => {
+    const cat = row.querySelector('select').value;
+    const amt = parseFloat(row.querySelector('input[type=number]').value) || 0;
+    const remarks = row.querySelector('textarea')?.value || '';
+    exceptions.push({ category: cat, amount: amt, remarks });
+  });
+  return exceptions;
+}
+
+// ==================== CALCULATION ====================
+function getIncomeForMonth(y, m) {
+  return state.monthlyIncome || 0;
+}
+
+function getBonusForMonth(y, m) {
+  const key = getKey(y, m);
+  const entry = state.bonuses[key];
+  return (entry && entry.amount) ? entry.amount : 0;
+}
+
+function recalculate() {
+  const prev = parseFloat(document.getElementById('prevBalance').value) || 0;
+  const curr = parseFloat(document.getElementById('currBalance').value) || 0;
+  const income = getIncomeForMonth(state.currentYear, state.currentMonth);
+  const bonus = getBonusForMonth(state.currentYear, state.currentMonth);
+  const exceptions = getExceptions();
+  const totalExceptions = exceptions.reduce((s, e) => s + e.amount, 0);
+
+  // Formula: prev + salary + bonus - expenditure - exceptions = curr
+  // So: expenditure = prev + salary + bonus - curr - exceptions
+  const totalInflow = income + bonus;
+  const expenditure = prev + totalInflow - curr - totalExceptions;
+
+  const resultEl = document.getElementById('resultAmount');
+  const breakdownEl = document.getElementById('resultBreakdown');
+
+  if (!document.getElementById('prevBalance').value && !document.getElementById('currBalance').value) {
+    resultEl.textContent = '—';
+    breakdownEl.textContent = '';
+    return;
+  }
+
+  resultEl.textContent = formatCurrency(expenditure);
+
+  let breakdown = 'Prev balance: ' + formatCurrency(prev);
+  if (income > 0) {
+    breakdown += '\n+ Salary: ' + formatCurrency(income);
+  }
+  if (bonus > 0) {
+    breakdown += '\n+ Bonus: ' + formatCurrency(bonus);
+  }
+  breakdown += '\n− End balance: ' + formatCurrency(curr);
+  if (totalExceptions > 0) {
+    breakdown += '\n− Adjustments: ' + formatCurrency(totalExceptions);
+  }
+  breakdownEl.textContent = breakdown;
+}
+
+// ==================== LOG ====================
+function logMonth() {
+  const prev = document.getElementById('prevBalance').value;
+  const curr = document.getElementById('currBalance').value;
+
+  if (!prev && !curr) {
+    showToast('Please enter at least one balance');
+    return;
+  }
+
+  const key = getKey(state.currentYear, state.currentMonth);
+  const exceptions = getExceptions();
+  const totalExceptions = exceptions.reduce((s, e) => s + e.amount, 0);
+  const prevVal = parseFloat(prev) || 0;
+  const currVal = parseFloat(curr) || 0;
+  const incomeVal = getIncomeForMonth(state.currentYear, state.currentMonth);
+  const bonusVal = getBonusForMonth(state.currentYear, state.currentMonth);
+  const expenditure = prevVal + incomeVal + bonusVal - currVal - totalExceptions;
+
+  state.data[key] = {
+    prevBalance: prevVal,
+    currBalance: currVal,
+    income: incomeVal,
+    bonus: bonusVal,
+    exceptions: exceptions,
+    expenditure: expenditure,
+    totalInvestments: exceptions.filter(e => e.category === 'Investments').reduce((s, e) => s + e.amount, 0),
+    totalOther: exceptions.filter(e => e.category === 'Others').reduce((s, e) => s + e.amount, 0)
+  };
+
+  saveState();
+  showToast('✓ ' + getMonthName(state.currentMonth) + ' ' + state.currentYear + ' logged');
+}
+
+// ==================== ANALYSIS ====================
+function renderAnalysis() {
+  const keys = Object.keys(state.data).sort();
+
+  if (keys.length === 0) {
+    document.getElementById('analysisEmpty').style.display = 'block';
+    document.getElementById('chartView').style.display = 'none';
+    document.getElementById('tableView').style.display = 'none';
+    document.getElementById('statsRow').style.display = 'none';
+    document.getElementById('exportSection').style.display = 'none';
+    return;
+  }
+
+  document.getElementById('analysisEmpty').style.display = 'none';
+  document.getElementById('exportSection').style.display = 'block';
+  document.getElementById('statsRow').style.display = 'flex';
+
+  // Populate range selectors
+  const fromSel = document.getElementById('rangeFrom');
+  const toSel = document.getElementById('rangeTo');
+  const prevFrom = fromSel.value;
+  const prevTo = toSel.value;
+
+  fromSel.innerHTML = '';
+  toSel.innerHTML = '';
+
+  keys.forEach(k => {
+    const [y, m] = k.split('-');
+    const label = SHORT_MONTHS[parseInt(m) - 1] + ' ' + y;
+    fromSel.innerHTML += `<option value="${k}" ${k === prevFrom ? 'selected' : ''}>${label}</option>`;
+    toSel.innerHTML += `<option value="${k}" ${k === prevTo ? 'selected' : ''}>${label}</option>`;
+  });
+
+  if (!prevFrom) fromSel.value = keys[0];
+  if (!prevTo) toSel.value = keys[keys.length - 1];
+
+  const from = fromSel.value;
+  const to = toSel.value;
+
+  const filtered = keys.filter(k => k >= from && k <= to);
+  const labels = filtered.map(k => {
+    const [y, m] = k.split('-');
+    return SHORT_MONTHS[parseInt(m) - 1] + ' ' + y;
+  });
+  const expenditures = filtered.map(k => state.data[k].expenditure || 0);
+  const investments = filtered.map(k => state.data[k].totalInvestments || 0);
+
+  // Stats
+  const total = expenditures.reduce((a, b) => a + b, 0);
+  const avg = expenditures.length > 0 ? total / expenditures.length : 0;
+  const totalInv = investments.reduce((a, b) => a + b, 0);
+
+  document.getElementById('statAvg').textContent = formatCurrency(avg);
+  document.getElementById('statTotal').textContent = formatCurrency(total);
+  document.getElementById('statInvest').textContent = formatCurrency(totalInv);
+
+  // Chart
+  renderChart(labels, expenditures, investments);
+
+  // Table
+  const tbody = document.getElementById('dataTableBody');
+  tbody.innerHTML = '';
+  filtered.forEach((k, i) => {
+    const row = document.createElement('tr');
+    row.innerHTML = `
+      <td>${labels[i]}</td>
+      <td style="text-align:right; color: ${expenditures[i] >= 0 ? 'var(--text-primary)' : 'var(--green)'}">${formatCurrency(expenditures[i])}</td>
+      <td style="text-align:right; color: var(--accent)">${formatCurrency(investments[i])}</td>
+    `;
+    tbody.appendChild(row);
+  });
+
+  // Total row
+  const totalRow = document.createElement('tr');
+  totalRow.innerHTML = `
+    <td style="font-weight:700;">Total</td>
+    <td style="text-align:right; font-weight:700;">${formatCurrency(total)}</td>
+    <td style="text-align:right; font-weight:700; color:var(--accent)">${formatCurrency(totalInv)}</td>
+  `;
+  tbody.appendChild(totalRow);
+}
+
+let chartInstance = null;
+
+function renderChart(labels, expenditures, investments) {
+  const ctx = document.getElementById('spendChart').getContext('2d');
+
+  if (chartInstance) chartInstance.destroy();
+
+  const isDark = state.darkMode;
+  const gridColor = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)';
+  const textColor = isDark ? '#8E8E93' : '#8E8E93';
+
+  chartInstance = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: 'Expenditure',
+          data: expenditures,
+          backgroundColor: 'rgba(108, 142, 191, 0.7)',
+          borderRadius: 6,
+          borderSkipped: false,
+          barPercentage: 0.6,
+          categoryPercentage: 0.7,
+        },
+        {
+          label: 'Investments',
+          data: investments,
+          backgroundColor: 'rgba(129, 201, 149, 0.7)',
+          borderRadius: 6,
+          borderSkipped: false,
+          barPercentage: 0.6,
+          categoryPercentage: 0.7,
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: {
+          display: true,
+          position: 'top',
+          labels: { color: textColor, font: { size: 11, family: '-apple-system, sans-serif' }, boxWidth: 12, borderRadius: 3, useBorderRadius: true, padding: 12 }
+        },
+        tooltip: {
+          backgroundColor: isDark ? '#2C2C2E' : '#1C1C1E',
+          titleColor: '#FFF',
+          bodyColor: '#FFF',
+          cornerRadius: 10,
+          padding: 10,
+          titleFont: { size: 12 },
+          bodyFont: { size: 13, weight: '600' },
+          callbacks: {
+            label: ctx => ctx.dataset.label + ': ' + formatCurrency(ctx.parsed.y)
+          }
+        }
+      },
+      scales: {
+        x: {
+          grid: { display: false },
+          ticks: { color: textColor, font: { size: 11, family: '-apple-system, sans-serif' } }
+        },
+        y: {
+          grid: { color: gridColor },
+          ticks: {
+            color: textColor,
+            font: { size: 11, family: '-apple-system, sans-serif' },
+            callback: v => '$' + v.toLocaleString()
+          }
+        }
+      }
+    }
+  });
+}
+
+function setView(view, btn) {
+  document.querySelectorAll('.view-toggle button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('chartView').style.display = view === 'chart' ? 'block' : 'none';
+  document.getElementById('tableView').style.display = view === 'table' ? 'block' : 'none';
+}
+
+// ==================== EXPORT ====================
+function exportToExcel() {
+  const keys = Object.keys(state.data).sort();
+  const from = document.getElementById('rangeFrom').value;
+  const to = document.getElementById('rangeTo').value;
+  const filtered = keys.filter(k => k >= from && k <= to);
+
+  if (filtered.length === 0) {
+    showToast('No data to export');
+    return;
+  }
+
+  const rows = [['Month', 'Previous Balance', 'Current Balance', 'Income', 'Bonus', 'Investments', 'Other Exceptions', 'Expenditure']];
+
+  filtered.forEach(k => {
+    const d = state.data[k];
+    const [y, m] = k.split('-');
+    const label = MONTHS[parseInt(m) - 1] + ' ' + y;
+    rows.push([
+      label,
+      d.prevBalance || 0,
+      d.currBalance || 0,
+      d.income || 0,
+      d.bonus || 0,
+      d.totalInvestments || 0,
+      d.totalOther || 0,
+      d.expenditure || 0
+    ]);
+  });
+
+  // Totals
+  const totals = ['TOTAL', '', '',
+    filtered.reduce((s, k) => s + (state.data[k].income || 0), 0),
+    filtered.reduce((s, k) => s + (state.data[k].bonus || 0), 0),
+    filtered.reduce((s, k) => s + (state.data[k].totalInvestments || 0), 0),
+    filtered.reduce((s, k) => s + (state.data[k].totalOther || 0), 0),
+    filtered.reduce((s, k) => s + (state.data[k].expenditure || 0), 0)
+  ];
+  rows.push(totals);
+
+  const ws = XLSX.utils.aoa_to_sheet(rows);
+
+  // Column widths
+  ws['!cols'] = [{ wch: 16 }, { wch: 16 }, { wch: 16 }, { wch: 12 }, { wch: 12 }, { wch: 14 }, { wch: 16 }, { wch: 14 }];
+
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Spending Data');
+  XLSX.writeFile(wb, 'SpendSight_Export.xlsx');
+  showToast('Exported to SpendSight_Export.xlsx');
+}
+
+// ==================== SETTINGS ====================
+function toggleTheme() {
+  state.darkMode = document.getElementById('darkToggle').checked;
+  document.documentElement.setAttribute('data-theme', state.darkMode ? 'dark' : '');
+  saveState();
+
+  // Re-render chart if on analysis page
+  if (document.getElementById('page-analysis').classList.contains('active')) {
+    renderAnalysis();
+  }
+}
+
+function saveIncome() {
+  state.monthlyIncome = parseFloat(document.getElementById('settingsIncome').value) || 0;
+  saveState();
+}
+
+// ==================== BONUS MANAGEMENT ====================
+function renderBonusList() {
+  const container = document.getElementById('bonusListContainer');
+  container.innerHTML = '';
+  const keys = Object.keys(state.bonuses).sort();
+  if (keys.length === 0) {
+    container.innerHTML = '<div style="text-align:center; padding:12px; color:var(--text-tertiary); font-size:13px;">No bonuses set yet.</div>';
+    return;
+  }
+  keys.forEach(k => {
+    const b = state.bonuses[k];
+    const [y, m] = k.split('-');
+    const label = SHORT_MONTHS[parseInt(m) - 1] + ' ' + y;
+    const row = document.createElement('div');
+    row.className = 'exception-row';
+    row.innerHTML = `
+      <div class="exception-row-header" style="margin-bottom:0;">
+        <div style="flex:1;">
+          <div style="font-size:15px; font-weight:600;">${label}</div>
+          <div style="font-size:13px; color:var(--text-secondary);">${formatCurrency(b.amount)}${b.remarks ? ' — ' + b.remarks : ''}</div>
+        </div>
+        <button class="remove-exception" onclick="removeBonus('${k}')">×</button>
+      </div>
+    `;
+    container.appendChild(row);
+  });
+}
+
+function addBonusRow() {
+  const container = document.getElementById('bonusListContainer');
+  // Check if there's already an open form
+  if (document.getElementById('bonusAddForm')) return;
+
+  const now = new Date();
+  const currentY = now.getFullYear();
+  const form = document.createElement('div');
+  form.className = 'exception-row';
+  form.id = 'bonusAddForm';
+
+  // Build month options
+  let monthOpts = '';
+  for (let y = currentY - 1; y <= currentY + 1; y++) {
+    for (let m = 0; m < 12; m++) {
+      const key = getKey(y, m);
+      const label = SHORT_MONTHS[m] + ' ' + y;
+      monthOpts += '<option value="' + key + '">' + label + '</option>';
+    }
+  }
+
+  form.innerHTML = `
+    <div style="margin-bottom:10px;">
+      <label class="input-label">Month</label>
+      <select class="input-field" id="bonusMonth" style="font-size:14px; padding:10px;">${monthOpts}</select>
+    </div>
+    <div style="margin-bottom:10px;">
+      <label class="input-label">Amount</label>
+      <div class="input-prefix">
+        <input type="number" class="input-field" id="bonusAmount" placeholder="0.00" step="0.01">
+      </div>
+    </div>
+    <div style="margin-bottom:10px;">
+      <label class="input-label">Remarks (optional)</label>
+      <input type="text" class="input-field" id="bonusRemarks" placeholder="e.g., Annual bonus" style="font-size:14px;">
+    </div>
+    <div style="display:flex; gap:10px;">
+      <button class="btn-secondary" onclick="cancelBonusAdd()" style="flex:1;">Cancel</button>
+      <button class="btn-primary" onclick="confirmBonusAdd()" style="flex:1;">Add</button>
+    </div>
+  `;
+  container.appendChild(form);
+}
+
+function confirmBonusAdd() {
+  const month = document.getElementById('bonusMonth').value;
+  const amount = parseFloat(document.getElementById('bonusAmount').value) || 0;
+  const remarks = document.getElementById('bonusRemarks').value || '';
+
+  if (amount <= 0) {
+    showToast('Please enter a bonus amount');
+    return;
+  }
+
+  state.bonuses[month] = { amount, remarks };
+  saveState();
+  renderBonusList();
+  showToast('Bonus added');
+}
+
+function cancelBonusAdd() {
+  const form = document.getElementById('bonusAddForm');
+  if (form) form.remove();
+}
+
+function removeBonus(key) {
+  delete state.bonuses[key];
+  saveState();
+  renderBonusList();
+  showToast('Bonus removed');
+}
+
+function applyCurrency() {
+  const styleTag = document.getElementById('dynamic-currency');
+  if (styleTag) styleTag.remove();
+  const s = document.createElement('style');
+  s.id = 'dynamic-currency';
+  s.textContent = `.input-prefix::before { content: '$'; }`;
+  document.head.appendChild(s);
+}
+
+function showClearModal() {
+  document.getElementById('clearModal').classList.add('show');
+}
+
+function hideClearModal() {
+  document.getElementById('clearModal').classList.remove('show');
+}
+
+function clearAllData() {
+  state.data = {};
+  state.monthlyIncome = 0;
+  state.bonuses = {};
+  saveState();
+  document.getElementById('settingsIncome').value = '';
+  renderBonusList();
+  hideClearModal();
+  renderMain();
+  showToast('All data cleared');
+}
+
+// ==================== TAB NAVIGATION ====================
+function switchTab(tab, btn) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-' + tab).classList.add('active');
+  btn.classList.add('active');
+
+  if (tab === 'analysis') renderAnalysis();
+}
+
+// ==================== UTILS ====================
+function formatCurrency(n) {
+  if (isNaN(n) || n === '') return '—';
+  const num = parseFloat(n);
+  const neg = num < 0;
+  const abs = Math.abs(num);
+  const formatted = state.currency + abs.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  return neg ? '-' + formatted : formatted;
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+// ==================== INIT ====================
+init();
+</script>
+</body>
+</html>
