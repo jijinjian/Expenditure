@@ -59,7 +59,6 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* Safe area handling */
 .app-container {
   padding-top: env(safe-area-inset-top, 0px);
   padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px));
@@ -67,7 +66,6 @@ body {
   margin: 0 auto;
 }
 
-/* Header */
 .header {
   padding: 12px 20px 8px;
   text-align: center;
@@ -85,7 +83,6 @@ body {
   letter-spacing: -0.2px;
 }
 
-/* Tab Bar */
 .tab-bar {
   position: fixed;
   bottom: 0;
@@ -120,15 +117,12 @@ body {
 }
 
 .tab-item.active { color: var(--accent); }
-
 .tab-item svg { width: 24px; height: 24px; }
 
-/* Page content */
 .page { display: none; padding: 0 16px 20px; animation: fadeIn 0.25s ease; }
 .page.active { display: block; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
 
-/* Month Navigator */
 .month-nav {
   display: flex;
   align-items: center;
@@ -163,7 +157,6 @@ body {
   text-align: center;
 }
 
-/* Cards */
 .card {
   background: var(--bg-secondary);
   border-radius: 14px;
@@ -182,7 +175,6 @@ body {
   margin-bottom: 12px;
 }
 
-/* Input groups */
 .input-group { margin-bottom: 14px; }
 .input-group:last-child { margin-bottom: 0; }
 
@@ -224,10 +216,7 @@ body {
 
 .input-field::placeholder { color: var(--text-tertiary); font-weight: 400; }
 
-.input-prefix {
-  position: relative;
-}
-
+.input-prefix { position: relative; }
 .input-prefix .input-field { padding-left: 28px; }
 
 .input-prefix::before {
@@ -256,7 +245,6 @@ textarea.input-field {
   font-size: 15px;
 }
 
-/* Exception rows */
 .exception-row {
   background: var(--bg-tertiary);
   border-radius: 10px;
@@ -308,7 +296,6 @@ textarea.input-field {
 
 .add-exception-btn:active { background: var(--accent-light); }
 
-/* Result card */
 .result-card {
   background: linear-gradient(135deg, #7BA0CC, #9B8EC4);
   border-radius: 16px;
@@ -342,7 +329,6 @@ textarea.input-field {
   white-space: pre-line;
 }
 
-/* Buttons */
 .btn-primary {
   width: 100%;
   padding: 16px;
@@ -377,7 +363,6 @@ textarea.input-field {
 
 .btn-secondary:active { transform: scale(0.98); }
 
-/* Toast */
 .toast {
   position: fixed;
   top: 50px;
@@ -402,59 +387,77 @@ textarea.input-field {
 }
 
 /* Analysis Page */
-.analysis-controls {
+.year-selector-row {
   display: flex;
-  gap: 10px;
-  margin-bottom: 16px;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-bottom: 20px;
+  padding-top: 4px;
 }
 
-.analysis-controls select.input-field {
-  flex: 1;
-  padding: 10px 14px;
-  font-size: 14px;
-}
-
-.view-toggle {
-  display: flex;
-  background: var(--input-bg);
-  border-radius: 10px;
-  padding: 3px;
-  margin-bottom: 16px;
-}
-
-.view-toggle button {
-  flex: 1;
-  padding: 8px 14px;
+.year-selector-row button {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
   border: none;
-  border-radius: 8px;
-  background: none;
-  color: var(--text-secondary);
-  font-size: 14px;
-  font-weight: 600;
-  font-family: inherit;
+  background: var(--bg-secondary);
+  color: var(--accent);
+  font-size: 18px;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--card-shadow);
   transition: all 0.2s;
 }
 
-.view-toggle button.active {
-  background: var(--bg-secondary);
-  color: var(--text-primary);
-  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+.year-selector-row button:active { transform: scale(0.92); }
+
+.year-display {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  min-width: 80px;
+  text-align: center;
+}
+
+.category-section {
+  margin-bottom: 24px;
+}
+
+.category-section-title {
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.category-badge {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  color: white;
+  letter-spacing: 0.2px;
 }
 
 .chart-container {
   background: var(--bg-secondary);
   border-radius: 14px;
   padding: 16px;
-  margin-bottom: 14px;
+  margin-bottom: 10px;
   box-shadow: var(--card-shadow);
   position: relative;
-  height: 280px;
+  height: 220px;
 }
 
-.chart-container canvas { max-height: 248px; }
+.chart-container canvas { max-height: 188px; }
 
-/* Data table */
 .data-table {
   width: 100%;
   border-collapse: collapse;
@@ -473,12 +476,18 @@ textarea.input-field {
 }
 
 .data-table td {
-  padding: 12px;
+  padding: 10px 12px;
   border-bottom: 1px solid var(--separator);
   font-weight: 500;
 }
 
 .data-table tr:last-child td { border-bottom: none; }
+
+.data-table tr.total-row td {
+  font-weight: 700;
+  border-top: 1.5px solid var(--separator);
+  padding-top: 12px;
+}
 
 .empty-state {
   text-align: center;
@@ -489,7 +498,6 @@ textarea.input-field {
 .empty-state svg { width: 48px; height: 48px; margin-bottom: 12px; opacity: 0.4; }
 .empty-state p { font-size: 15px; line-height: 1.5; }
 
-/* Settings */
 .setting-row {
   display: flex;
   align-items: center;
@@ -503,7 +511,6 @@ textarea.input-field {
 .setting-info h3 { font-size: 16px; font-weight: 500; }
 .setting-info p { font-size: 13px; color: var(--text-secondary); margin-top: 2px; }
 
-/* Toggle switch */
 .toggle {
   position: relative;
   width: 51px;
@@ -538,7 +545,6 @@ textarea.input-field {
 .toggle input:checked + .toggle-slider { background: var(--green); }
 .toggle input:checked + .toggle-slider::before { transform: translateX(20px); }
 
-/* Danger zone */
 .btn-danger {
   width: 100%;
   padding: 14px;
@@ -555,7 +561,6 @@ textarea.input-field {
 
 .btn-danger:active { transform: scale(0.98); }
 
-/* Modal */
 .modal-overlay {
   display: none;
   position: fixed;
@@ -585,40 +590,7 @@ textarea.input-field {
 .modal-actions { display: flex; gap: 10px; }
 .modal-actions button { flex: 1; }
 
-/* Summary stats row */
-.stats-row {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 14px;
-}
-
-.stat-card {
-  flex: 1;
-  background: var(--bg-secondary);
-  border-radius: 12px;
-  padding: 14px;
-  text-align: center;
-  box-shadow: var(--card-shadow);
-}
-
-.stat-value {
-  font-size: 20px;
-  font-weight: 700;
-  letter-spacing: -0.5px;
-}
-
-.stat-label {
-  font-size: 11px;
-  color: var(--text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.3px;
-  margin-top: 4px;
-  font-weight: 600;
-}
-
-/* Scrollbar hide */
 ::-webkit-scrollbar { width: 0; height: 0; }
-
 </style>
 </head>
 <body>
@@ -639,7 +611,6 @@ textarea.input-field {
       </button>
     </div>
 
-    <!-- Balances -->
     <div class="card">
       <div class="card-title">Bank Account Balances</div>
       <div class="input-group">
@@ -657,21 +628,18 @@ textarea.input-field {
       </div>
     </div>
 
-    <!-- Exceptions -->
     <div class="card">
       <div class="card-title">Exceptions / Adjustments</div>
       <div id="exceptionsContainer"></div>
       <button class="add-exception-btn" onclick="addException()">+ Add Exception</button>
     </div>
 
-    <!-- Result -->
     <div class="result-card" id="resultCard">
       <div class="result-label">Monthly Expenditure</div>
       <div class="result-amount" id="resultAmount">—</div>
       <div class="result-breakdown" id="resultBreakdown"></div>
     </div>
 
-    <!-- Log Button -->
     <button class="btn-primary" id="logBtn" onclick="logMonth()">
       Log This Month
     </button>
@@ -680,64 +648,112 @@ textarea.input-field {
   <!-- ========== ANALYSIS PAGE ========== -->
   <div class="page" id="page-analysis">
     <div style="padding-top: 16px;">
-      <h2 style="font-size: 28px; font-weight: 700; letter-spacing: -0.8px; margin-bottom: 16px;">Analysis</h2>
+      <h2 style="font-size: 28px; font-weight: 700; letter-spacing: -0.8px; margin-bottom: 4px;">Analysis</h2>
 
-      <div class="analysis-controls">
-        <select class="input-field" id="rangeFrom" onchange="renderAnalysis()"></select>
-        <span style="align-self:center; color:var(--text-tertiary); font-size:14px;">to</span>
-        <select class="input-field" id="rangeTo" onchange="renderAnalysis()"></select>
-      </div>
-
-      <div class="stats-row" id="statsRow" style="display:none;">
-        <div class="stat-card">
-          <div class="stat-value" id="statAvg">—</div>
-          <div class="stat-label">Avg / Month</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-value" id="statTotal">—</div>
-          <div class="stat-label">Total</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-value" id="statInvest">—</div>
-          <div class="stat-label">Total Invested</div>
-        </div>
-      </div>
-
-      <div class="view-toggle">
-        <button class="active" onclick="setView('chart', this)">Chart</button>
-        <button onclick="setView('table', this)">Table</button>
-      </div>
-
-      <div id="chartView">
-        <div class="chart-container">
-          <canvas id="spendChart"></canvas>
-        </div>
-      </div>
-
-      <div id="tableView" style="display:none;">
-        <div class="card" style="padding: 0; overflow: hidden;">
-          <table class="data-table" id="dataTable">
-            <thead>
-              <tr>
-                <th>Month</th>
-                <th style="text-align:right">Spent</th>
-                <th style="text-align:right">Invested</th>
-              </tr>
-            </thead>
-            <tbody id="dataTableBody"></tbody>
-          </table>
-        </div>
-      </div>
-
-      <div class="empty-state" id="analysisEmpty">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 3v18h18"/><path d="M7 16l4-4 4 4 6-6"/></svg>
-        <p>No data yet.<br>Log your first month to see trends.</p>
-      </div>
-
-      <div style="margin-top: 14px;" id="exportSection" class="hidden">
-        <button class="btn-secondary" onclick="exportToExcel()">
-          Export to Excel (.xlsx)
+      <div class="year-selector-row">
+        <button onclick="changeAnalysisYear(-1)" aria-label="Previous year">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
         </button>
+        <div class="year-display" id="analysisYearLabel"></div>
+        <button onclick="changeAnalysisYear(1)" aria-label="Next year">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+      </div>
+
+      <div id="analysisContent" style="display:none;">
+        <!-- Expenditure section -->
+        <div class="category-section" id="section-expenditure">
+          <div class="category-section-title">
+            <span class="category-badge" style="background: rgba(108,142,191,0.8);">$</span>
+            Expenditure
+          </div>
+          <div class="chart-container">
+            <canvas id="chartExpenditure"></canvas>
+          </div>
+          <div class="card" style="padding: 0; overflow: hidden; margin-bottom: 6px;">
+            <table class="data-table" id="tableExpenditure">
+              <thead><tr><th>Month</th><th style="text-align:right">Amount</th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Investments section -->
+        <div class="category-section" id="section-investments">
+          <div class="category-section-title">
+            <span class="category-badge" style="background: rgba(129,201,149,0.9);">↑</span>
+            Investments
+          </div>
+          <div class="chart-container">
+            <canvas id="chartInvestments"></canvas>
+          </div>
+          <div class="card" style="padding: 0; overflow: hidden; margin-bottom: 6px;">
+            <table class="data-table" id="tableInvestments">
+              <thead><tr><th>Month</th><th style="text-align:right">Amount</th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Travel section -->
+        <div class="category-section" id="section-travel">
+          <div class="category-section-title">
+            <span class="category-badge" style="background: rgba(246,173,85,0.9);">✈</span>
+            Travel
+          </div>
+          <div class="chart-container">
+            <canvas id="chartTravel"></canvas>
+          </div>
+          <div class="card" style="padding: 0; overflow: hidden; margin-bottom: 6px;">
+            <table class="data-table" id="tableTravel">
+              <thead><tr><th>Month</th><th style="text-align:right">Amount</th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Insurance section -->
+        <div class="category-section" id="section-insurance">
+          <div class="category-section-title">
+            <span class="category-badge" style="background: rgba(155,142,196,0.9);">🛡</span>
+            Insurance
+          </div>
+          <div class="chart-container">
+            <canvas id="chartInsurance"></canvas>
+          </div>
+          <div class="card" style="padding: 0; overflow: hidden; margin-bottom: 6px;">
+            <table class="data-table" id="tableInsurance">
+              <thead><tr><th>Month</th><th style="text-align:right">Amount</th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Others section -->
+        <div class="category-section" id="section-others">
+          <div class="category-section-title">
+            <span class="category-badge" style="background: rgba(232,128,127,0.9);">…</span>
+            Others
+          </div>
+          <div class="chart-container">
+            <canvas id="chartOthers"></canvas>
+          </div>
+          <div class="card" style="padding: 0; overflow: hidden; margin-bottom: 6px;">
+            <table class="data-table" id="tableOthers">
+              <thead><tr><th>Month</th><th style="text-align:right">Amount</th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div style="margin-top: 14px;">
+          <button class="btn-secondary" onclick="exportToExcel()">Export to Excel (.xlsx)</button>
+        </div>
+      </div>
+
+      <div class="empty-state" id="analysisEmpty" style="display:none;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 3v18h18"/><path d="M7 16l4-4 4 4 6-6"/></svg>
+        <p>No data for this year.<br>Log months to see trends.</p>
       </div>
     </div>
   </div>
@@ -760,7 +776,6 @@ textarea.input-field {
           </label>
         </div>
       </div>
-
 
       <div class="card">
         <div class="card-title">Monthly Income</div>
@@ -799,7 +814,7 @@ textarea.input-field {
       </div>
 
       <div style="text-align: center; margin-top: 32px; color: var(--text-tertiary); font-size: 12px;">
-        SpendSight v1.0<br>Your data is stored locally on this device.
+        SpendSight v1.1<br>Your data is stored locally on this device.
       </div>
     </div>
   </div>
@@ -832,23 +847,30 @@ textarea.input-field {
     </div>
   </div>
 
-  <!-- Toast -->
   <div class="toast" id="toast"></div>
 </div>
 
 <script>
-// ==================== STATE ====================
 const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 const SHORT_MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+// Categories config
+const CATEGORIES = [
+  { key: 'Investments', label: 'Investments', color: 'rgba(129,201,149,0.75)', chartId: 'chartInvestments', tableId: 'tableInvestments', sectionId: 'section-investments' },
+  { key: 'Travel',      label: 'Travel',      color: 'rgba(246,173,85,0.75)',  chartId: 'chartTravel',       tableId: 'tableTravel',       sectionId: 'section-travel' },
+  { key: 'Insurance',   label: 'Insurance',   color: 'rgba(155,142,196,0.75)', chartId: 'chartInsurance',    tableId: 'tableInsurance',    sectionId: 'section-insurance' },
+  { key: 'Others',      label: 'Others',      color: 'rgba(232,128,127,0.75)', chartId: 'chartOthers',       tableId: 'tableOthers',       sectionId: 'section-others' },
+];
 
 let state = {
   currentYear: 0,
   currentMonth: 0,
-  data: {},         // key: "YYYY-MM" -> { prevBalance, currBalance, income, bonus, exceptions: [{category, amount, remarks}], expenditure }
+  analysisYear: 0,
+  data: {},
   currency: '$',
   darkMode: false,
-  monthlyIncome: 0, // default income from Settings
-  bonuses: {}       // key: "YYYY-MM" -> { amount, remarks }
+  monthlyIncome: 0,
+  bonuses: {}
 };
 
 // ==================== PERSISTENCE ====================
@@ -876,33 +898,27 @@ function loadState() {
 function init() {
   loadState();
 
-  // Default to last month
   const now = new Date();
-  let m = now.getMonth(); // 0-indexed, this is current month
+  let m = now.getMonth();
   let y = now.getFullYear();
-  // The "main page" shows last month
   m -= 1;
   if (m < 0) { m = 11; y -= 1; }
   state.currentMonth = m;
   state.currentYear = y;
+  state.analysisYear = now.getFullYear();
 
-  // Apply theme
   if (state.darkMode) {
     document.documentElement.setAttribute('data-theme', 'dark');
     document.getElementById('darkToggle').checked = true;
   }
 
-  // Apply currency
   applyCurrency();
 
-  // Apply settings income
   if (state.monthlyIncome > 0) {
     document.getElementById('settingsIncome').value = state.monthlyIncome;
   }
 
-  // Render bonus list
   renderBonusList();
-
   renderMain();
 }
 
@@ -935,13 +951,11 @@ function renderMain() {
 
   document.getElementById('monthLabel').textContent = getMonthName(m) + ' ' + y;
 
-  // Label for previous month
   let pm = m - 1, py = y;
   if (pm < 0) { pm = 11; py--; }
   document.getElementById('prevMonthLabel').textContent = getMonthName(pm) + ' ' + py + ' Balance';
   document.getElementById('currMonthLabel').textContent = getMonthName(m) + ' ' + y + ' Balance';
 
-  // Fill from existing data
   const prevBalInput = document.getElementById('prevBalance');
   const currBalInput = document.getElementById('currBalance');
 
@@ -953,7 +967,6 @@ function renderMain() {
     currBalInput.value = '';
   }
 
-  // Suggestion for previous month balance from prior month's data
   const prevKey = getPrevMonthKey(y, m);
   const prevData = state.data[prevKey];
   const suggestionEl = document.getElementById('prevMonthSuggestion');
@@ -967,9 +980,7 @@ function renderMain() {
     suggestionEl.style.display = 'none';
   }
 
-  // Exceptions
   renderExceptions(existing ? existing.exceptions : null);
-
   recalculate();
 }
 
@@ -995,20 +1006,22 @@ function addExceptionRow(container, ex) {
   const row = document.createElement('div');
   row.className = 'exception-row';
 
-  const remarksDisplay = ex.category === 'Others' ? 'block' : 'none';
+  const showRemarks = ex.category === 'Others';
 
   row.innerHTML = `
     <div class="exception-row-header">
       <select class="input-field" onchange="onCategoryChange(this)" style="font-size:14px; padding:10px;">
         <option value="Investments" ${ex.category === 'Investments' ? 'selected' : ''}>Investments</option>
-        <option value="Others" ${ex.category === 'Others' ? 'selected' : ''}>Others</option>
+        <option value="Travel"      ${ex.category === 'Travel'      ? 'selected' : ''}>Travel</option>
+        <option value="Insurance"   ${ex.category === 'Insurance'   ? 'selected' : ''}>Insurance</option>
+        <option value="Others"      ${ex.category === 'Others'      ? 'selected' : ''}>Others</option>
       </select>
       <div class="input-prefix" style="flex:1;">
         <input type="number" class="input-field" placeholder="0.00" step="0.01" value="${ex.amount || ''}" oninput="recalculate()" style="font-size:14px; padding:10px 10px 10px 24px;">
       </div>
       <button class="remove-exception" onclick="removeException(this)">×</button>
     </div>
-    <div class="remarks-box" style="display:${remarksDisplay};">
+    <div class="remarks-box" style="display:${showRemarks ? 'block' : 'none'};">
       <textarea class="input-field" placeholder="Describe this exception..." style="font-size:13px;">${ex.remarks || ''}</textarea>
     </div>
   `;
@@ -1062,9 +1075,6 @@ function recalculate() {
   const bonus = getBonusForMonth(state.currentYear, state.currentMonth);
   const exceptions = getExceptions();
   const totalExceptions = exceptions.reduce((s, e) => s + e.amount, 0);
-
-  // Formula: prev + salary + bonus - expenditure - exceptions = curr
-  // So: expenditure = prev + salary + bonus - curr - exceptions
   const totalInflow = income + bonus;
   const expenditure = prev + totalInflow - curr - totalExceptions;
 
@@ -1080,16 +1090,10 @@ function recalculate() {
   resultEl.textContent = formatCurrency(expenditure);
 
   let breakdown = 'Prev balance: ' + formatCurrency(prev);
-  if (income > 0) {
-    breakdown += '\n+ Salary: ' + formatCurrency(income);
-  }
-  if (bonus > 0) {
-    breakdown += '\n+ Bonus: ' + formatCurrency(bonus);
-  }
+  if (income > 0) breakdown += '\n+ Salary: ' + formatCurrency(income);
+  if (bonus > 0) breakdown += '\n+ Bonus: ' + formatCurrency(bonus);
   breakdown += '\n− End balance: ' + formatCurrency(curr);
-  if (totalExceptions > 0) {
-    breakdown += '\n− Adjustments: ' + formatCurrency(totalExceptions);
-  }
+  if (totalExceptions > 0) breakdown += '\n− Adjustments: ' + formatCurrency(totalExceptions);
   breakdownEl.textContent = breakdown;
 }
 
@@ -1112,6 +1116,14 @@ function logMonth() {
   const bonusVal = getBonusForMonth(state.currentYear, state.currentMonth);
   const expenditure = prevVal + incomeVal + bonusVal - currVal - totalExceptions;
 
+  // Aggregate by category
+  const catTotals = {};
+  CATEGORIES.forEach(c => catTotals[c.key] = 0);
+  exceptions.forEach(ex => {
+    if (catTotals[ex.category] !== undefined) catTotals[ex.category] += ex.amount;
+    else catTotals['Others'] = (catTotals['Others'] || 0) + ex.amount;
+  });
+
   state.data[key] = {
     prevBalance: prevVal,
     currBalance: currVal,
@@ -1119,8 +1131,10 @@ function logMonth() {
     bonus: bonusVal,
     exceptions: exceptions,
     expenditure: expenditure,
-    totalInvestments: exceptions.filter(e => e.category === 'Investments').reduce((s, e) => s + e.amount, 0),
-    totalOther: exceptions.filter(e => e.category === 'Others').reduce((s, e) => s + e.amount, 0)
+    totalInvestments: catTotals['Investments'],
+    totalTravel: catTotals['Travel'],
+    totalInsurance: catTotals['Insurance'],
+    totalOther: catTotals['Others'],
   };
 
   saveState();
@@ -1128,184 +1142,170 @@ function logMonth() {
 }
 
 // ==================== ANALYSIS ====================
-function renderAnalysis() {
-  const keys = Object.keys(state.data).sort();
+let chartInstances = {};
 
-  if (keys.length === 0) {
-    document.getElementById('analysisEmpty').style.display = 'block';
-    document.getElementById('chartView').style.display = 'none';
-    document.getElementById('tableView').style.display = 'none';
-    document.getElementById('statsRow').style.display = 'none';
-    document.getElementById('exportSection').style.display = 'none';
+function changeAnalysisYear(delta) {
+  state.analysisYear += delta;
+  renderAnalysis();
+}
+
+function renderAnalysis() {
+  const year = state.analysisYear;
+  document.getElementById('analysisYearLabel').textContent = year;
+
+  // Gather all 12 months for this year
+  const allMonthKeys = [];
+  for (let m = 0; m < 12; m++) {
+    allMonthKeys.push(getKey(year, m));
+  }
+
+  // Filter to months that have data
+  const dataKeys = allMonthKeys.filter(k => state.data[k]);
+
+  const analysisEmpty = document.getElementById('analysisEmpty');
+  const analysisContent = document.getElementById('analysisContent');
+
+  if (dataKeys.length === 0) {
+    analysisEmpty.style.display = 'block';
+    analysisContent.style.display = 'none';
     return;
   }
 
-  document.getElementById('analysisEmpty').style.display = 'none';
-  document.getElementById('exportSection').style.display = 'block';
-  document.getElementById('statsRow').style.display = 'flex';
+  analysisEmpty.style.display = 'none';
+  analysisContent.style.display = 'block';
 
-  // Populate range selectors
-  const fromSel = document.getElementById('rangeFrom');
-  const toSel = document.getElementById('rangeTo');
-  const prevFrom = fromSel.value;
-  const prevTo = toSel.value;
-
-  fromSel.innerHTML = '';
-  toSel.innerHTML = '';
-
-  keys.forEach(k => {
-    const [y, m] = k.split('-');
-    const label = SHORT_MONTHS[parseInt(m) - 1] + ' ' + y;
-    fromSel.innerHTML += `<option value="${k}" ${k === prevFrom ? 'selected' : ''}>${label}</option>`;
-    toSel.innerHTML += `<option value="${k}" ${k === prevTo ? 'selected' : ''}>${label}</option>`;
+  const labels = allMonthKeys.map(k => {
+    const m = parseInt(k.split('-')[1]) - 1;
+    return SHORT_MONTHS[m];
   });
 
-  if (!prevFrom) fromSel.value = keys[0];
-  if (!prevTo) toSel.value = keys[keys.length - 1];
+  // Expenditure data (all 12 months, 0 if no data)
+  const expenditureData = allMonthKeys.map(k => state.data[k] ? (state.data[k].expenditure || 0) : 0);
+  const investData      = allMonthKeys.map(k => state.data[k] ? (state.data[k].totalInvestments || 0) : 0);
+  const travelData      = allMonthKeys.map(k => state.data[k] ? (state.data[k].totalTravel || 0) : 0);
+  const insuranceData   = allMonthKeys.map(k => state.data[k] ? (state.data[k].totalInsurance || 0) : 0);
+  const othersData      = allMonthKeys.map(k => state.data[k] ? (state.data[k].totalOther || 0) : 0);
 
-  const from = fromSel.value;
-  const to = toSel.value;
+  // Render each section
+  renderCategorySection('chartExpenditure', 'tableExpenditure', 'section-expenditure',
+    labels, expenditureData, 'rgba(108,142,191,0.75)', 'Expenditure', dataKeys, allMonthKeys);
 
-  const filtered = keys.filter(k => k >= from && k <= to);
-  const labels = filtered.map(k => {
-    const [y, m] = k.split('-');
-    return SHORT_MONTHS[parseInt(m) - 1] + ' ' + y;
-  });
-  const expenditures = filtered.map(k => state.data[k].expenditure || 0);
-  const investments = filtered.map(k => state.data[k].totalInvestments || 0);
+  renderCategorySection('chartInvestments', 'tableInvestments', 'section-investments',
+    labels, investData, 'rgba(129,201,149,0.75)', 'Investments', dataKeys, allMonthKeys);
 
-  // Stats
-  const total = expenditures.reduce((a, b) => a + b, 0);
-  const avg = expenditures.length > 0 ? total / expenditures.length : 0;
-  const totalInv = investments.reduce((a, b) => a + b, 0);
+  renderCategorySection('chartTravel', 'tableTravel', 'section-travel',
+    labels, travelData, 'rgba(246,173,85,0.75)', 'Travel', dataKeys, allMonthKeys);
 
-  document.getElementById('statAvg').textContent = formatCurrency(avg);
-  document.getElementById('statTotal').textContent = formatCurrency(total);
-  document.getElementById('statInvest').textContent = formatCurrency(totalInv);
+  renderCategorySection('chartInsurance', 'tableInsurance', 'section-insurance',
+    labels, insuranceData, 'rgba(155,142,196,0.75)', 'Insurance', dataKeys, allMonthKeys);
 
-  // Chart
-  renderChart(labels, expenditures, investments);
-
-  // Table
-  const tbody = document.getElementById('dataTableBody');
-  tbody.innerHTML = '';
-  filtered.forEach((k, i) => {
-    const row = document.createElement('tr');
-    row.innerHTML = `
-      <td>${labels[i]}</td>
-      <td style="text-align:right; color: ${expenditures[i] >= 0 ? 'var(--text-primary)' : 'var(--green)'}">${formatCurrency(expenditures[i])}</td>
-      <td style="text-align:right; color: var(--accent)">${formatCurrency(investments[i])}</td>
-    `;
-    tbody.appendChild(row);
-  });
-
-  // Total row
-  const totalRow = document.createElement('tr');
-  totalRow.innerHTML = `
-    <td style="font-weight:700;">Total</td>
-    <td style="text-align:right; font-weight:700;">${formatCurrency(total)}</td>
-    <td style="text-align:right; font-weight:700; color:var(--accent)">${formatCurrency(totalInv)}</td>
-  `;
-  tbody.appendChild(totalRow);
+  renderCategorySection('chartOthers', 'tableOthers', 'section-others',
+    labels, othersData, 'rgba(232,128,127,0.75)', 'Others', dataKeys, allMonthKeys);
 }
 
-let chartInstance = null;
-
-function renderChart(labels, expenditures, investments) {
-  const ctx = document.getElementById('spendChart').getContext('2d');
-
-  if (chartInstance) chartInstance.destroy();
-
+function renderCategorySection(chartId, tableId, sectionId, labels, data, color, categoryLabel, dataKeys, allMonthKeys) {
   const isDark = state.darkMode;
   const gridColor = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)';
-  const textColor = isDark ? '#8E8E93' : '#8E8E93';
+  const textColor = '#8E8E93';
 
-  chartInstance = new Chart(ctx, {
+  // Only show bars for months that have data
+  const hasAnyData = data.some(v => v !== 0);
+
+  // Section visibility — always show, just mark zero months
+  const section = document.getElementById(sectionId);
+
+  // Chart
+  const ctx = document.getElementById(chartId).getContext('2d');
+  if (chartInstances[chartId]) chartInstances[chartId].destroy();
+
+  chartInstances[chartId] = new Chart(ctx, {
     type: 'bar',
     data: {
       labels,
-      datasets: [
-        {
-          label: 'Expenditure',
-          data: expenditures,
-          backgroundColor: 'rgba(108, 142, 191, 0.7)',
-          borderRadius: 6,
-          borderSkipped: false,
-          barPercentage: 0.6,
-          categoryPercentage: 0.7,
-        },
-        {
-          label: 'Investments',
-          data: investments,
-          backgroundColor: 'rgba(129, 201, 149, 0.7)',
-          borderRadius: 6,
-          borderSkipped: false,
-          barPercentage: 0.6,
-          categoryPercentage: 0.7,
-        }
-      ]
+      datasets: [{
+        label: categoryLabel,
+        data: data,
+        backgroundColor: allMonthKeys.map((k, i) => data[i] > 0 ? color : 'rgba(0,0,0,0.05)'),
+        borderRadius: 6,
+        borderSkipped: false,
+        barPercentage: 0.65,
+        categoryPercentage: 0.75,
+      }]
     },
     options: {
       responsive: true,
       maintainAspectRatio: false,
-      interaction: { mode: 'index', intersect: false },
       plugins: {
-        legend: {
-          display: true,
-          position: 'top',
-          labels: { color: textColor, font: { size: 11, family: '-apple-system, sans-serif' }, boxWidth: 12, borderRadius: 3, useBorderRadius: true, padding: 12 }
-        },
+        legend: { display: false },
         tooltip: {
           backgroundColor: isDark ? '#2C2C2E' : '#1C1C1E',
           titleColor: '#FFF',
           bodyColor: '#FFF',
           cornerRadius: 10,
           padding: 10,
-          titleFont: { size: 12 },
-          bodyFont: { size: 13, weight: '600' },
           callbacks: {
-            label: ctx => ctx.dataset.label + ': ' + formatCurrency(ctx.parsed.y)
+            label: ctx => categoryLabel + ': ' + formatCurrency(ctx.parsed.y)
           }
         }
       },
       scales: {
         x: {
           grid: { display: false },
-          ticks: { color: textColor, font: { size: 11, family: '-apple-system, sans-serif' } }
+          ticks: { color: textColor, font: { size: 10, family: '-apple-system, sans-serif' } }
         },
         y: {
           grid: { color: gridColor },
           ticks: {
             color: textColor,
-            font: { size: 11, family: '-apple-system, sans-serif' },
+            font: { size: 10, family: '-apple-system, sans-serif' },
             callback: v => '$' + v.toLocaleString()
           }
         }
       }
     }
   });
-}
 
-function setView(view, btn) {
-  document.querySelectorAll('.view-toggle button').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  document.getElementById('chartView').style.display = view === 'chart' ? 'block' : 'none';
-  document.getElementById('tableView').style.display = view === 'table' ? 'block' : 'none';
+  // Table
+  const table = document.getElementById(tableId);
+  const tbody = table.querySelector('tbody');
+  tbody.innerHTML = '';
+
+  let total = 0;
+  allMonthKeys.forEach((k, i) => {
+    if (!dataKeys.includes(k)) return; // only show logged months
+    const val = data[i];
+    total += val;
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${labels[i]}</td>
+      <td style="text-align:right; color: ${val > 0 ? 'var(--text-primary)' : 'var(--text-tertiary)'}">${val > 0 ? formatCurrency(val) : '—'}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  // Total row
+  const totalTr = document.createElement('tr');
+  totalTr.className = 'total-row';
+  totalTr.innerHTML = `
+    <td>Total ${state.analysisYear}</td>
+    <td style="text-align:right;">${formatCurrency(total)}</td>
+  `;
+  tbody.appendChild(totalTr);
 }
 
 // ==================== EXPORT ====================
 function exportToExcel() {
-  const keys = Object.keys(state.data).sort();
-  const from = document.getElementById('rangeFrom').value;
-  const to = document.getElementById('rangeTo').value;
-  const filtered = keys.filter(k => k >= from && k <= to);
+  const year = state.analysisYear;
+  const allMonthKeys = [];
+  for (let m = 0; m < 12; m++) allMonthKeys.push(getKey(year, m));
+  const filtered = allMonthKeys.filter(k => state.data[k]);
 
   if (filtered.length === 0) {
     showToast('No data to export');
     return;
   }
 
-  const rows = [['Month', 'Previous Balance', 'Current Balance', 'Income', 'Bonus', 'Investments', 'Other Exceptions', 'Expenditure']];
+  const rows = [['Month', 'Expenditure', 'Investments', 'Travel', 'Insurance', 'Others', 'Income', 'Bonus']];
 
   filtered.forEach(k => {
     const d = state.data[k];
@@ -1313,35 +1313,32 @@ function exportToExcel() {
     const label = MONTHS[parseInt(m) - 1] + ' ' + y;
     rows.push([
       label,
-      d.prevBalance || 0,
-      d.currBalance || 0,
-      d.income || 0,
-      d.bonus || 0,
+      d.expenditure || 0,
       d.totalInvestments || 0,
+      d.totalTravel || 0,
+      d.totalInsurance || 0,
       d.totalOther || 0,
-      d.expenditure || 0
+      d.income || 0,
+      d.bonus || 0
     ]);
   });
 
-  // Totals
-  const totals = ['TOTAL', '', '',
-    filtered.reduce((s, k) => s + (state.data[k].income || 0), 0),
-    filtered.reduce((s, k) => s + (state.data[k].bonus || 0), 0),
+  rows.push(['TOTAL',
+    filtered.reduce((s, k) => s + (state.data[k].expenditure || 0), 0),
     filtered.reduce((s, k) => s + (state.data[k].totalInvestments || 0), 0),
+    filtered.reduce((s, k) => s + (state.data[k].totalTravel || 0), 0),
+    filtered.reduce((s, k) => s + (state.data[k].totalInsurance || 0), 0),
     filtered.reduce((s, k) => s + (state.data[k].totalOther || 0), 0),
-    filtered.reduce((s, k) => s + (state.data[k].expenditure || 0), 0)
-  ];
-  rows.push(totals);
+    filtered.reduce((s, k) => s + (state.data[k].income || 0), 0),
+    filtered.reduce((s, k) => s + (state.data[k].bonus || 0), 0)
+  ]);
 
   const ws = XLSX.utils.aoa_to_sheet(rows);
-
-  // Column widths
-  ws['!cols'] = [{ wch: 16 }, { wch: 16 }, { wch: 16 }, { wch: 12 }, { wch: 12 }, { wch: 14 }, { wch: 16 }, { wch: 14 }];
-
+  ws['!cols'] = [{ wch: 16 }, { wch: 14 }, { wch: 14 }, { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 12 }];
   const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, 'Spending Data');
-  XLSX.writeFile(wb, 'SpendSight_Export.xlsx');
-  showToast('Exported to SpendSight_Export.xlsx');
+  XLSX.utils.book_append_sheet(wb, ws, 'Spending ' + year);
+  XLSX.writeFile(wb, 'SpendSight_' + year + '.xlsx');
+  showToast('Exported SpendSight_' + year + '.xlsx');
 }
 
 // ==================== SETTINGS ====================
@@ -1349,8 +1346,6 @@ function toggleTheme() {
   state.darkMode = document.getElementById('darkToggle').checked;
   document.documentElement.setAttribute('data-theme', state.darkMode ? 'dark' : '');
   saveState();
-
-  // Re-render chart if on analysis page
   if (document.getElementById('page-analysis').classList.contains('active')) {
     renderAnalysis();
   }
@@ -1391,7 +1386,6 @@ function renderBonusList() {
 
 function addBonusRow() {
   const container = document.getElementById('bonusListContainer');
-  // Check if there's already an open form
   if (document.getElementById('bonusAddForm')) return;
 
   const now = new Date();
@@ -1400,7 +1394,6 @@ function addBonusRow() {
   form.className = 'exception-row';
   form.id = 'bonusAddForm';
 
-  // Build month options
   let monthOpts = '';
   for (let y = currentY - 1; y <= currentY + 1; y++) {
     for (let m = 0; m < 12; m++) {
@@ -1437,12 +1430,7 @@ function confirmBonusAdd() {
   const month = document.getElementById('bonusMonth').value;
   const amount = parseFloat(document.getElementById('bonusAmount').value) || 0;
   const remarks = document.getElementById('bonusRemarks').value || '';
-
-  if (amount <= 0) {
-    showToast('Please enter a bonus amount');
-    return;
-  }
-
+  if (amount <= 0) { showToast('Please enter a bonus amount'); return; }
   state.bonuses[month] = { amount, remarks };
   saveState();
   renderBonusList();
@@ -1470,13 +1458,8 @@ function applyCurrency() {
   document.head.appendChild(s);
 }
 
-function showClearModal() {
-  document.getElementById('clearModal').classList.add('show');
-}
-
-function hideClearModal() {
-  document.getElementById('clearModal').classList.remove('show');
-}
+function showClearModal() { document.getElementById('clearModal').classList.add('show'); }
+function hideClearModal() { document.getElementById('clearModal').classList.remove('show'); }
 
 function clearAllData() {
   state.data = {};
@@ -1496,7 +1479,6 @@ function switchTab(tab, btn) {
   document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
   document.getElementById('page-' + tab).classList.add('active');
   btn.classList.add('active');
-
   if (tab === 'analysis') renderAnalysis();
 }
 
@@ -1517,7 +1499,6 @@ function showToast(msg) {
   setTimeout(() => t.classList.remove('show'), 2200);
 }
 
-// ==================== INIT ====================
 init();
 </script>
 </body>
