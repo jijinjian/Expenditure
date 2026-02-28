@@ -1291,6 +1291,16 @@ function renderCategorySection(chartId, tableId, sectionId, labels, data, color,
     <td style="text-align:right;">${formatCurrency(total)}</td>
   `;
   tbody.appendChild(totalTr);
+
+    // Monthly average row (based on number of logged months)
+  const numMonths = dataKeys.length;
+  const avg = numMonths > 0 ? total / numMonths : 0;
+  const avgTr = document.createElement('tr');
+  avgTr.innerHTML = `
+    <td style="color: var(--text-secondary); font-size: 13px;">Avg / Month <span style="color: var(--text-tertiary); font-weight: 400;">(${numMonths} mo)</span></td>
+    <td style="text-align:right; color: var(--text-secondary); font-size: 13px;">${formatCurrency(avg)}</td>
+  `;
+  tbody.appendChild(avgTr);
 }
 
 // ==================== EXPORT ====================
